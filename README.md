@@ -3,7 +3,7 @@
 1. Within the project directory, type: `. venv/bin/activate`
 2. To run the dev server: `python manage.py rundserver` or `python manage.py rundserver 0.0.0.0:8000`
 3. If you need to install some dependancies:
-	- `pip install flask-wtf`
+	- `pip install `
 
 ---
 
