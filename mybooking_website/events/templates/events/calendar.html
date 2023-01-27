@@ -1,0 +1,11 @@
+{% extends 'events/layout.html' %}
+
+{% block content %}
+	<div class="container align-items-center text-center">
+		As of {{ current_time }}
+		
+		<center>{{ cal|safe }}</center>
+
+		<div class="mt-5">Copyright &copy; {{ current_year }}</div>
+	</div>
+{% endblock %}
