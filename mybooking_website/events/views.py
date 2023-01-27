@@ -1,12 +1,16 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth.models import User # Import User Model from Django
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+import csv
 import calendar
+
 from calendar import HTMLCalendar
 from datetime import datetime
-from django.http import HttpResponseRedirect
 from .models import Event, Venue
-from .forms import EventForm, VenueForm
-from django.http import HttpResponse
-import csv
+from .forms import EventForm, EventFormAdmin, VenueForm
 
 def home(request):
 	return render(request, 'events/home.html')
@@ -20,16 +24,31 @@ def list_events(request):
 		}
 	)
 
+@login_required
 def add_event(request):
 	submitted = False
 	if request.method == 'POST':
-		form = EventForm(request.POST)
-		if form.is_valid():
-			form.save()
-			#return HttpResponseRedirect('/add_event?submitted=True')
-			return redirect('event-list')
+		if request.user.is_superuser:
+			form = EventFormAdmin(request.POST)
+			if form.is_valid():
+				form.save()
+				
+		else:
+			form = EventForm(request.POST)
+			if form.is_valid():
+				event = form.save(commit=False)
+				event.manager = request.user # logged in user
+				event.save()
+
+		#return HttpResponseRedirect('/add_event?submitted=True')
+		return redirect('event-list')
 	else:
-		form = EventForm
+		# setup the page, not submitting
+		if request.user.is_superuser:
+			form = EventFormAdmin
+		else:
+			form = EventForm
+		
 		if 'submitted' in request.GET:
 			submitted = True
 	
@@ -40,9 +59,14 @@ def add_event(request):
 		}
 	)
 
+@login_required
 def update_event(request, event_id):
 	event = Event.objects.get(pk=event_id)
-	form = EventForm(request.POST or None, instance=event)
+	if request.user.is_superuser:
+		form = EventFormAdmin(request.POST or None, instance=event)
+	else:
+		form = EventForm(request.POST or None, instance=event)
+	
 	if form.is_valid():
 		form.save()
 		return redirect('event-list')
@@ -54,9 +78,15 @@ def update_event(request, event_id):
 		}
 	)
 
+@login_required
 def delete_event(request, event_id):
 	event = Event.objects.get(pk=event_id)
-	event.delete()
+	if request.user == event.manager or request.user.is_superuser:
+		event.delete()
+		messages.success(request, ('Event Deleted!'))
+	else:
+		messages.error(request, ("You aren't authorized to delete this event!"))
+	
 	return redirect('event-list')
 
 def list_venues(request):
@@ -70,13 +100,16 @@ def list_venues(request):
 
 def show_venue(request, venue_id):
 	venue = Venue.objects.get(pk=venue_id)
+	venue_owner = User.objects.get(pk=venue.owner)
 
 	return render(request,
 		'events/show_venue.html', {
-			'venue': venue
+			'venue': venue,
+			'venue_owner': venue_owner
 		}
 	)
 
+@login_required
 def update_venue(request, venue_id):
 	venue = Venue.objects.get(pk=venue_id)
 	form = VenueForm(request.POST or None, instance=venue)
@@ -91,12 +124,19 @@ def update_venue(request, venue_id):
 		}
 	)
 
+@login_required
 def add_venue(request):
 	submitted = False
 	if request.method == 'POST':
 		form = VenueForm(request.POST)
 		if form.is_valid():
-			form.save()
+			# "Hold" the save, then store the user id who created the venue into the db
+			venue = form.save(commit=False)
+			venue.owner = request.user.id # logged in user
+			venue.save()
+
+			# save right away
+			#form.save()
 			#return HttpResponseRedirect('/add_venue?submitted=True')
 			return redirect('venue-list')
 	else:
@@ -111,9 +151,15 @@ def add_venue(request):
 		}
 	)
 
+@login_required
 def delete_venue(request, venue_id):
 	venue = Venue.objects.get(pk=venue_id)
-	venue.delete()
+	if request.user == venue.owner or request.user.is_superuser:
+		venue.delete()
+		messages.success(request, ('Venue Deleted!'))
+	else:
+		messages.error(request, ("You aren't authorized to delete this venue!"))
+
 	return redirect('venue-list')
 
 def search_venues(request):

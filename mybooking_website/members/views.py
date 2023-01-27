@@ -16,7 +16,10 @@ def login_user(request):
 			messages.warning(request, ('There was an error logging in, try again'))
 			return redirect('login')
 	else:
-		return render(request, 'authenticate/login.html')
+		if request.user.is_authenticated:
+			return redirect('home')
+		else:
+			return render(request, 'registration/login.html')
 
 def logout_user(request):
 	logout(request)
@@ -50,8 +53,8 @@ def register_user(request):
 			# redirect to 'home'
 			return redirect('home')
 	else:
-		form = RegisterUserForm()
-
-	return render(request, 'authenticate/register_user.html', {
-		'form': form
-	})
+		if request.user.is_authenticated:
+			return redirect('home')
+		else:
+			form = RegisterUserForm()
+			return render(request, 'registration/register_user.html', {'form': form})

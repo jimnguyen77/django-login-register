@@ -26,11 +26,13 @@
 				</p>
 				
 			</div>
-			{% if user.is_authenticated and user == event.manager %}
-				<div class="card-footer text-muted">
-					<a href="{% url 'event-update' event.id %}" class="btn btn-primary btn-sm">Update</a>
-					<a href="{% url 'event-delete' event.id %}" class="btn btn-danger btn-sm">Delete</a>
-				</div>
+			{% if user.is_authenticated %}
+				{% if user == event.manager or user.is_superuser %}
+					<div class="card-footer text-muted">
+						<a href="{% url 'event-update' event.id %}" class="btn btn-primary btn-sm">Update</a>
+						<a href="{% url 'event-delete' event.id %}" class="btn btn-danger btn-sm">Delete</a>
+					</div>
+				{% endif %}
 			{% endif %}
 		</div>
 	{% endfor %}

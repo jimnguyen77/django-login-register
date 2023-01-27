@@ -1,13 +1,40 @@
 {% extends 'events/layout.html' %}
 
 {% block content %}
-	<div class="container align-items-center text-center">
+	<div class="container">
 		{% if searched %}
 			<h1>Your results for: {{ searched }}</h1>
 			<div class="mt-4">
 				{% for venue in venues %}
-					<div>
-						<a href="{% url 'venue-show' venue.id %}">{{ venue }}</a>
+					<div class="card mt-4">
+						<div class="card-header">
+							<h4><a href="{% url 'venue-show' venue.id %}">{{ venue }}</a></h4>
+						</div>
+						<div class="card-body">
+							<p class="card-text">
+								<ul>
+									{% if venue.address %}
+										<li><strong>Address:</strong> {{ venue.address }}</li>
+									{% endif %}
+
+									{% if venue.zip_code %}
+										<li><strong>Zip Code:</strong> {{ venue.zip_code }}</li>
+									{% endif %}
+
+									{% if venue.phone %}
+										<li><strong>Phone:</strong> {{ venue.phone }}</li>
+									{% endif %}
+
+									{% if venue.email_address %}
+										<li><strong>Email:</strong> {{ venue.email_address }}</li>
+									{% endif %}
+
+									{% if venue.web %}
+										<li><strong>Website:</strong> <a href="{{ venue.web }}">{{ venue.web }}</a></li>
+									{% endif %}
+								</ul>
+							</p>
+						</div>
 					</div>
 				{% endfor %}
 			</div>

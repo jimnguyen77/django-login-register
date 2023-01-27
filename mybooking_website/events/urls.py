@@ -19,5 +19,4 @@ urlpatterns = [
     path('add_event', views.add_event, name='event-add'),
     path('update_event/<event_id>', views.update_event, name='event-update'),
     path('delete_event/<event_id>', views.delete_event, name='event-delete'),
-
 ]
