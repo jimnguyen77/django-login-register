@@ -1,8 +1,10 @@
 # To initialize this project: #
 
-1. Within the project directory, type: `. venv/bin/activate`
-2. To run the dev server: `python manage.py rundserver` or `python manage.py rundserver 0.0.0.0:8000`
-3. Admin user for /admin is: `admin` / `password`
+1. Type: `python3 -m venv venv`
+2. Next, type: `. venv/bin/activate`
+3. Finally, type: `pip install -r requirements.txt`
+4. To run the dev server, `cd` into the project directory (mybooking_website) and type: `python manage.py rundserver` or `python manage.py rundserver 0.0.0.0:8000`
+5. Admin user for /admin is: `admin` / `password`
 
 ---
 
